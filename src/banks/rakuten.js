@@ -191,11 +191,6 @@ const depositFromJpBank = async args => {
   ]);
   await checkError(args);
 
-  const schedule = await page.evaluate(
-    el => el.innerText,
-    await page.$('.innercell .bold')
-  );
-
   await page.type('input[name="SECURITY_BOARD:USER_PASSWORD"]', PIN.toString());
   await page.waitFor(500);
 
@@ -205,7 +200,18 @@ const depositFromJpBank = async args => {
   ]);
   await checkError(args);
 
-  return schedule;
+  const result = await page.$$('table .td01none');
+  // 4: 入金金額, 5: 手数料, 6: 予定日
+
+  const amountResult = await page.evaluate(el => el.innerText, result[4]);
+  const fee = await page.evaluate(el => el.innerText, result[5]);
+  const schedule = await page.evaluate(el => el.innerText, result[6]);
+
+  return {
+    amount: amountToNumber(amountResult),
+    fee: amountToNumber(fee),
+    schedule: new Date(schedule)
+  };
 };
 
 export const action = args => {
