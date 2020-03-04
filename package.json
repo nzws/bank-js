@@ -13,7 +13,7 @@
     "access": "public"
   },
   "scripts": {
-    "lint:prettier": "pretty-quick --check",
+    "lint:prettier": "prettier --check --ignore-path .gitignore \"**/*.{js,md,json,yml}\"",
     "lint:eslint": "eslint --ignore-path .gitignore \"**/*.js\"",
     "lint": "npm-run-all lint:* -s",
     "format:prettier": "pretty-quick",
