@@ -130,10 +130,9 @@ await bank.action('DEPOSIT_FROM_JPBANK', {
   - `fee` <[number]>: 手数料(恐らく変更がない限り 0 円固定)
   - `schedule` <[Date]>: 入金予定日
 
-
 [number]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Data_structures#Numbers
 [string]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Data_structures#String
-[Object]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Data_structures#Object
-[Promise]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[Date]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Date
+[object]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Data_structures#Object
+[promise]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[date]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Date
 [any]: #
