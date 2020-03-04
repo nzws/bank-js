@@ -5,7 +5,7 @@
 [![code style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=for-the-badge&logo=prettier)](https://prettier.io/)
 [![dependabot enabled](https://img.shields.io/badge/dependabot-enabled-0366D6.svg?style=for-the-badge&logo=dependabot)](https://github.com/nzws/bank-js/pulls?utf8=%E2%9C%93&q=is%3Apr+label%3Adependencies+)
 
-> Node.js 向けオンラインバンキングのスクレイピングモジュール
+> Node.js向けオンラインバンキングのスクレイピングモジュール
 
 ## 対応状況
 
