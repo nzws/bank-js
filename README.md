@@ -19,7 +19,7 @@
 
 ## 使用方法
 
-See the example (wip)
+[example](https://github.com/nzws/bank-js/tree/master/example) | [docs](https://github.com/nzws/bank-js/tree/master/docs)
 
 ## 免責事項
 
