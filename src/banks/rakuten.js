@@ -1,16 +1,26 @@
 import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 
-const checkError = async page => {
+const checkError = async args => {
+  const { getState, setState } = args;
+  const { page } = getState();
   const errorBox = await page.$('.errortxt, .txt-error');
   if (errorBox) {
     const error = await page.evaluate(el => el.innerText, errorBox);
     access.error(page.url(), error);
-    throw new Error(error);
+
+    if (error.indexOf('一定時間操作が行われなかった') !== -1) {
+      // セッションタイムアウト
+      await page.waitFor(2000);
+      await login({ getState, setState });
+    } else {
+      throw new Error(error);
+    }
   }
 };
 
-const goToTop = async page => {
+const goToTop = async args => {
+  const { page } = args.getState();
   const topSelector =
     '.menu-list-01 a[href="/MS/main/gns?COMMAND=BALANCE_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK"]';
   if (!(await page.$(topSelector))) {
@@ -23,19 +33,27 @@ const goToTop = async page => {
     page.waitForSelector('.tbl-amount span.amount')
   ]);
 
-  await checkError(page);
+  await checkError(args);
 };
 
-const login = async ({
-  state: { page },
-  values: {
+const login = async args => {
+  const { getState, setState, values } = args;
+  const { page, login } = getState();
+  const {
     username,
     password,
     options: { secretQuestions }
-  }
-}) => {
+  } = values || login;
+
   if (!username || !password || !secretQuestions) {
     throw new Error('The value is missing.');
+  }
+  if (!login && values) {
+    setState('login', {
+      username,
+      password,
+      options: { secretQuestions }
+    });
   }
 
   await page.goto(
@@ -53,7 +71,7 @@ const login = async ({
   ]);
 
   const checkInput = async () => {
-    await checkError(page);
+    await checkError(args);
     const secretWordInput = await page.$(
       'input[name="INPUT_FORM:SECRET_WORD"]'
     );
@@ -77,9 +95,10 @@ const login = async ({
       await page.type('input[name="INPUT_FORM:SECRET_WORD"]', questionSet[1]);
       await page.waitFor(500);
 
-      page.click('input[type="submit"]');
-
-      await page.waitForNavigation();
+      await Promise.all([
+        page.click('input[type="submit"]'),
+        page.waitForNavigation()
+      ]);
 
       return checkInput();
     } else {
@@ -90,8 +109,9 @@ const login = async ({
   await checkInput();
 };
 
-const getBalance = async ({ state: { page } }) => {
-  await goToTop(page);
+const getBalance = async args => {
+  const { page } = args.getState();
+  await goToTop(args);
 
   const balanceText = await page.evaluate(
     el => el.innerText,
@@ -104,8 +124,9 @@ const getBalance = async ({ state: { page } }) => {
   return amountToNumber(balanceText);
 };
 
-const getLogs = async ({ state: { page } }) => {
-  await goToTop(page);
+const getLogs = async args => {
+  const { page } = args.getState();
+  await goToTop(args);
 
   await Promise.all([
     page.click(
@@ -115,7 +136,7 @@ const getLogs = async ({ state: { page } }) => {
     page.waitForSelector('.table01 tbody')
   ]);
 
-  await checkError(page);
+  await checkError(args);
 
   const result = await page.evaluate(e => {
     const tr = Array.from(e.querySelectorAll('tr'));
@@ -137,14 +158,17 @@ const getLogs = async ({ state: { page } }) => {
   });
 };
 
-const depositFromJpBank = async ({
-  state: { page },
-  values: { amount = 1000, PIN = 0 }
-}) => {
+const depositFromJpBank = async args => {
+  const {
+    getState,
+    values: { amount = 1000, PIN = 0 }
+  } = args;
+  const { page } = getState();
+
   if (!amount || !PIN) {
     throw new Error('amount and PIN is required in values.');
   }
-  await goToTop(page);
+  await goToTop(args);
 
   const selector = 'form#CREDIT_CARD_FORM td[align="center"] a[href="#"]';
   await Promise.all([
@@ -154,7 +178,7 @@ const depositFromJpBank = async ({
     page.waitFor(500),
     page.waitForSelector(selector)
   ]);
-  await checkError(page);
+  await checkError(args);
 
   await Promise.all([page.click(selector), page.waitForNavigation()]);
 
@@ -165,7 +189,7 @@ const depositFromJpBank = async ({
     page.click('input[type="submit"]'),
     page.waitForNavigation()
   ]);
-  await checkError(page);
+  await checkError(args);
 
   const schedule = await page.evaluate(
     el => el.innerText,
@@ -179,7 +203,7 @@ const depositFromJpBank = async ({
     page.click('input[value="実 行"]'),
     page.waitForNavigation()
   ]);
-  await checkError(page);
+  await checkError(args);
 
   return schedule;
 };

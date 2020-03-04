@@ -2,7 +2,9 @@ import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 import { e2y } from '../utils/era2year';
 
-const checkError = async page => {
+const checkError = async args => {
+  const { getState, setState } = args;
+  const { page } = getState();
   const errorBox = await page.$('.boxErrorBa');
   if (errorBox) {
     const error = await page.evaluate(
@@ -10,11 +12,19 @@ const checkError = async page => {
       await errorBox.$('.listBa li')
     );
     access.error(page.url(), error);
-    throw new Error(error);
+
+    if (error.indexOf('前回の操作から一定時間が経過した場合') !== -1) {
+      // セッションタイムアウト
+      await page.waitFor(2000);
+      await login({ getState, setState });
+    } else {
+      throw new Error(error);
+    }
   }
 };
 
-const goToTop = async page => {
+const goToTop = async args => {
+  const { page } = args.getState();
   if (!(await page.$('a[data-modal="MENU_DIRECTTOP"]'))) {
     throw new Error('Please try again from login.');
   }
@@ -28,20 +38,28 @@ const goToTop = async page => {
     page.waitForSelector('.txtBalanceTy01.alignR span')
   ]);
 
-  await checkError(page);
+  await checkError(args);
 };
 
-const login = async ({
-  state: { page },
-  values: {
+const login = async args => {
+  const { getState, setState, values } = args;
+  const { page, login } = getState();
+  const {
     username,
     password,
     options: { secretQuestions }
-  }
-}) => {
+  } = values || login;
+
   const user = username.split('-');
   if (user.length !== 3 || !password || !secretQuestions) {
     throw new Error('The value is missing.');
+  }
+  if (!login && values) {
+    setState('login', {
+      username,
+      password,
+      options: { secretQuestions }
+    });
   }
 
   await page.goto('https://direct.jp-bank.japanpost.jp/tp1web/U010101WAK.do');
@@ -60,7 +78,7 @@ const login = async ({
   ]);
 
   const checkInput = async () => {
-    await checkError(page);
+    await checkError(args);
 
     const passwordInput = await page.$('input[name="loginPassword"]');
     const secretWordInput = await page.$('input[name="aikotoba"]');
@@ -116,8 +134,9 @@ const login = async ({
   await checkInput();
 };
 
-const getBalance = async ({ state: { page } }) => {
-  await goToTop(page);
+const getBalance = async args => {
+  const { page } = args.getState();
+  await goToTop(args);
 
   const balanceText = await page.evaluate(
     el => el.innerText,
@@ -130,7 +149,8 @@ const getBalance = async ({ state: { page } }) => {
   return amountToNumber(balanceText);
 };
 
-const getLogs = async ({ state: { page } }) => {
+const getLogs = async args => {
+  const { page } = args.getState();
   if (!(await page.$('.navGlobal .icon02 a'))) {
     throw new Error('Please try again from login.');
   }
@@ -140,6 +160,7 @@ const getLogs = async ({ state: { page } }) => {
     page.waitFor(500),
     page.waitForSelector('table.tblTy91 tbody')
   ]);
+  await checkError(args);
 
   const result = await page.evaluate(
     e =>

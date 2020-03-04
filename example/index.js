@@ -1,8 +1,15 @@
+import puppeteer from 'puppeteer';
+
 const bankJs = require('../build');
 
 (async () => {
+  const browser = await puppeteer.launch({
+    headless: false,
+    slowMo: 50
+  });
+
   const jpBank = new bankJs('jp-bank');
-  await jpBank.init();
+  await jpBank.init(browser);
 
   // ログイン
   await jpBank.login('0000-0000-00001', 'password', {

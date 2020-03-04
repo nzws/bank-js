@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 import { access, action, debug } from './utils/logger';
 
+const state = {};
 const banks = {
   'jp-bank': require('./banks/jp-bank'),
   rakuten: require('./banks/rakuten')
@@ -12,13 +13,27 @@ export default class bankJs {
       throw new Error('This bank ID does not exist.');
     }
 
-    this.state = {
-      bankId
-    };
+    const random = Math.random()
+      .toString(36)
+      .slice(-8);
+    this.id = random;
+    this.setState('bankId', bankId, random);
+  }
+
+  setState(key, value, id = this.id) {
+    if (!state[id]) {
+      state[id] = {};
+    }
+    state[id][key] = value;
+  }
+
+  getState(id = this.id) {
+    return state[id];
   }
 
   async init(browser) {
-    if (this.state.browser) {
+    const state = this.getState();
+    if (state.browser) {
       throw new Error('This instance has been initialized.');
     }
 
@@ -28,25 +43,21 @@ export default class bankJs {
         slowMo: 50
       });
     }
-    browser.on('targetchanged', e => {
-      access.info(this.state.bankId, e._targetInfo.url);
-    });
 
     const page = await browser.newPage();
+    page.on('load', () => {
+      access.info(page.url());
+    });
 
     this.setState('browser', browser);
     this.setState('page', page);
 
-    debug.info(`${this.state.bankId} started`);
-  }
-
-  setState(key, value) {
-    return (this.state[key] = value);
+    debug.info(`${state.bankId} started`);
   }
 
   action(type = '', values = {}) {
-    const { state, setState } = this;
-    const { bankId, closed } = state;
+    const { getState, setState, id } = this;
+    const { bankId, closed } = getState(id);
 
     if (closed) {
       throw new Error('This session has been closed. Please create a new one.');
@@ -60,8 +71,8 @@ export default class bankJs {
 
     return banks[bankId]
       .action({
-        state,
-        setState,
+        getState: () => getState(id),
+        setState: (key, value) => setState(key, value, id),
         type,
         values
       })
@@ -69,12 +80,11 @@ export default class bankJs {
   }
 
   async close() {
-    const { page, browser } = this.state;
+    const { page } = this.getState();
     this.setState('closed', true);
 
     await page.goto('about:blank');
     await page.close();
-    await browser.close();
   }
 
   login(username = '', password = '', options = {}) {
