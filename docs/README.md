@@ -51,6 +51,8 @@ import bankJs from '@nzws/bank-js';
   - `secretQuestions` <[Array]> 秘密の質問
 - returns: <[Promise]>
 
+---
+
 - ゆうちょ: `username` は「お客さま番号」で `0000-0000-00000` の形式である必要があります。
 - ゆうちょ, 楽天: `options` に `secretQuestions` として秘密の質問を記入する必要があります。
 
@@ -75,12 +77,13 @@ await bank.login('username', 'password', {
 履歴を取得します。
 
 - returns: <[Promise]<[Array]>> リストを新しい順の配列で返します。
-
   - `date` <[Date]>: 実行された日時
   - `name` <[string]>: 項目名
   - `type` <withdrawal|deposit>: deposit: 入金, withdrawal: 引出
   - `amount` <[number]>: 金額
   - `balance` <[number]>: その時点での残高
+
+---
 
 - ゆうちょ: 直近 10 日分を取得できます。
 - 楽天: 最新 50 件を取得できます。
@@ -134,5 +137,6 @@ await bank.action('DEPOSIT_FROM_JPBANK', {
 [string]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Data_structures#String
 [object]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Data_structures#Object
 [promise]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[date]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Date
+[date]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Data_structures#Dates
+[array]: https://developer.mozilla.org/ja/docs/Web/JavaScript/Data_structures#Indexed_collections_Arrays_and_typed_Arrays
 [any]: #
