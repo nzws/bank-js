@@ -28,9 +28,9 @@ const goToTop = async args => {
   }
 
   await Promise.all([
-    page.click(topSelector),
     page.waitFor(500),
-    page.waitForSelector('.tbl-amount span.amount')
+    page.waitForSelector('.tbl-amount span.amount'),
+    page.click(topSelector)
   ]);
 
   await checkError(args);
