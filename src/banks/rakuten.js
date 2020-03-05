@@ -27,11 +27,8 @@ const goToTop = async args => {
     throw new Error('Please try again from login.');
   }
 
-  await Promise.all([
-    page.waitFor(500),
-    page.waitForSelector('.tbl-amount span.amount'),
-    page.click(topSelector)
-  ]);
+  await page.click(topSelector);
+  await page.waitFor(8000);
 
   await checkError(args);
 };
