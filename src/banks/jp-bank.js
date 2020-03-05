@@ -1,6 +1,7 @@
 import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 import { e2y } from '../utils/era2year';
+import { clickToNav, clickToSelector } from '../utils/page-move';
 
 const checkError = async args => {
   const { getState, setState } = args;
@@ -32,11 +33,11 @@ const goToTop = async args => {
   page.click('a[data-modal="MENU_DIRECTTOP"]');
   await page.waitFor(500);
 
-  await Promise.all([
-    page.click('div[data-modal="MENU_DIRECTTOP"] .btnTy05.yes a.execute'),
-    page.waitFor(500),
-    page.waitForSelector('.txtBalanceTy01.alignR span')
-  ]);
+  await clickToSelector(
+    page,
+    'div[data-modal="MENU_DIRECTTOP"] .btnTy05.yes a.execute',
+    '.txtBalanceTy01.alignR span'
+  );
 
   await checkError(args);
 };
@@ -72,10 +73,7 @@ const login = async args => {
   await page.type('input[name="okyakusamaBangou3"]', user[2]);
   await page.waitFor(500);
 
-  await Promise.all([
-    page.click('input[value="次へ"]'),
-    page.waitForNavigation()
-  ]);
+  await clickToNav(page, 'input[value="次へ"]');
 
   const checkInput = async () => {
     await checkError(args);
@@ -88,10 +86,7 @@ const login = async args => {
       await page.type('input[name="loginPassword"]', password);
       await page.waitFor(500);
 
-      await Promise.all([
-        page.click('input[value="ログイン"]'),
-        page.waitForNavigation()
-      ]);
+      await clickToNav(page, 'input[value="ログイン"]');
 
       return checkInput();
     } else if (secretWordInput) {
@@ -113,17 +108,11 @@ const login = async args => {
       await page.type('input[name="aikotoba"]', questionSet[1]);
       await page.waitFor(500);
 
-      await Promise.all([
-        page.click('.listBtnTy01 .btnBa:not(.back) a[href="#"]'),
-        page.waitForNavigation()
-      ]);
+      await clickToNav(page, '.listBtnTy01 .btnBa:not(.back) a[href="#"]');
 
       return checkInput();
     } else if (topPage) {
-      await Promise.all([
-        page.click('.btnBa.alignR.submit a'),
-        page.waitForNavigation()
-      ]);
+      await clickToNav(page, '.btnBa.alignR.submit a');
 
       return checkInput();
     } else {
@@ -155,11 +144,7 @@ const getLogs = async args => {
     throw new Error('Please try again from login.');
   }
 
-  await Promise.all([
-    page.click('.navGlobal .icon02 a'),
-    page.waitFor(500),
-    page.waitForSelector('table.tblTy91 tbody')
-  ]);
+  await clickToSelector(page, '.navGlobal .icon02 a', 'table.tblTy91 tbody');
   await checkError(args);
 
   const result = await page.evaluate(

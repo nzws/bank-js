@@ -1,5 +1,6 @@
 import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
+import { clickToNav, clickToSelector } from '../utils/page-move';
 
 const checkError = async args => {
   const { getState, setState } = args;
@@ -27,8 +28,7 @@ const goToTop = async args => {
     throw new Error('Please try again from login.');
   }
 
-  await page.click(topSelector);
-  await page.waitFor(8000);
+  await clickToNav(page, topSelector);
 
   await checkError(args);
 };
@@ -61,11 +61,7 @@ const login = async args => {
   await page.type('input[name="LOGIN:LOGIN_PASSWORD"]', password);
   await page.waitFor(500);
 
-  await Promise.all([
-    page.click('.btn-login01 a'),
-    page.waitForNavigation(),
-    page.waitFor(3000)
-  ]);
+  await clickToNav(page, '.btn-login01 a');
 
   const checkInput = async () => {
     await checkError(args);
@@ -92,10 +88,7 @@ const login = async args => {
       await page.type('input[name="INPUT_FORM:SECRET_WORD"]', questionSet[1]);
       await page.waitFor(500);
 
-      await Promise.all([
-        page.click('input[type="submit"]'),
-        page.waitForNavigation()
-      ]);
+      await clickToNav(page, 'input[type="submit"]');
 
       return checkInput();
     } else {
@@ -125,13 +118,11 @@ const getLogs = async args => {
   const { page } = args.getState();
   await goToTop(args);
 
-  await Promise.all([
-    page.click(
-      '.sub-tab01 a[href="/MS/main/gns?COMMAND=CREDIT_DEBIT_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK"]'
-    ),
-    page.waitFor(500),
-    page.waitForSelector('.table01 tbody')
-  ]);
+  await clickToSelector(
+    page,
+    '.sub-tab01 a[href="/MS/main/gns?COMMAND=CREDIT_DEBIT_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK"]',
+    '.table01 tbody'
+  );
 
   await checkError(args);
 
@@ -168,33 +159,25 @@ const depositFromJpBank = async args => {
   await goToTop(args);
 
   const selector = 'form#CREDIT_CARD_FORM td[align="center"] a[href="#"]';
-  await Promise.all([
-    page.click(
-      '.sub-tab01 a[href="/MS/main/gns?COMMAND=CREDIT_SERVICE_START&&CurrentPageID=HEADER_FOOTER_LINK"]'
-    ),
-    page.waitFor(500),
-    page.waitForSelector(selector)
-  ]);
+  await clickToSelector(
+    page,
+    '.sub-tab01 a[href="/MS/main/gns?COMMAND=CREDIT_SERVICE_START&&CurrentPageID=HEADER_FOOTER_LINK"]',
+    selector
+  );
   await checkError(args);
 
-  await Promise.all([page.click(selector), page.waitForNavigation()]);
+  await clickToNav(page, selector);
 
   await page.type('input[name="FORM:AMOUNT"]', amount.toString());
   await page.waitFor(500);
 
-  await Promise.all([
-    page.click('input[type="submit"]'),
-    page.waitForNavigation()
-  ]);
+  await clickToNav(page, 'input[type="submit"]');
   await checkError(args);
 
   await page.type('input[name="SECURITY_BOARD:USER_PASSWORD"]', PIN.toString());
   await page.waitFor(500);
 
-  await Promise.all([
-    page.click('input[value="実 行"]'),
-    page.waitForNavigation()
-  ]);
+  await clickToNav(page, 'input[value="実 行"]');
   await checkError(args);
 
   const result = await page.$$('table .td01none');
