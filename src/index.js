@@ -76,7 +76,10 @@ export default class bankJs {
         type,
         values
       })
-      .catch(e => debug.error(e));
+      .catch(e => {
+        debug.error(e);
+        throw new Error(e);
+      });
   }
 
   async close() {
