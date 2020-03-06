@@ -48,6 +48,14 @@ export default class bankJs {
     page.on('load', () => {
       access.info(page.url());
     });
+    await page.setRequestInterception(true);
+    page.on('request', req => {
+      if (['image', 'stylesheet', 'font'].indexOf(req.resourceType()) !== -1) {
+        return req.abort();
+      }
+
+      req.continue();
+    });
 
     this.setState('browser', browser);
     this.setState('page', page);

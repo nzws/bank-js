@@ -6,7 +6,12 @@ import { clickToNav, clickToSelector } from '../utils/page-move';
 const checkError = async args => {
   const { getState, setState } = args;
   const { page } = getState();
-  const errorBox = await page.$('.boxErrorBa');
+  await page.bringToFront();
+  await page.waitFor(1000);
+  const errorBox = await page.$('.boxErrorBa').catch(e => {
+    debug.warn(e);
+    return null;
+  });
   if (errorBox) {
     const error = await page.evaluate(
       el => el.innerText,
@@ -18,13 +23,21 @@ const checkError = async args => {
       // セッションタイムアウト
       await page.waitFor(2000);
       await login({ getState, setState });
+      return 'reloaded';
+    } else if (
+      error.indexOf('ご利用時間外のためお取り扱いいただけません') !== -1
+    ) {
+      // 23:55 ~ 0:05
+      await page.waitFor(1000 * 60 * 10);
+      await login({ getState, setState });
+      return 'reloaded';
     } else {
       throw new Error(error);
     }
   }
 };
 
-const goToTop = async args => {
+const goToTop = async (args, isRetry = false) => {
   const { page } = args.getState();
   if (!(await page.$('a[data-modal="MENU_DIRECTTOP"]'))) {
     throw new Error('Please try again from login.');
@@ -39,7 +52,9 @@ const goToTop = async args => {
     '.txtBalanceTy01.alignR span'
   );
 
-  await checkError(args);
+  if ((await checkError(args)) === 'reloaded' && !isRetry) {
+    return await goToTop(args, true);
+  }
 };
 
 const login = async args => {
@@ -63,7 +78,9 @@ const login = async args => {
     });
   }
 
+  await page.bringToFront();
   await page.goto('https://direct.jp-bank.japanpost.jp/tp1web/U010101WAK.do');
+  await checkError(args);
 
   await page.waitFor(500);
   await page.type('input[name="okyakusamaBangou1"]', user[0]);
@@ -125,6 +142,7 @@ const login = async args => {
 
 const getBalance = async args => {
   const { page } = args.getState();
+  await page.bringToFront();
   await goToTop(args);
 
   const balanceText = await page.evaluate(
@@ -138,14 +156,18 @@ const getBalance = async args => {
   return amountToNumber(balanceText);
 };
 
-const getLogs = async args => {
+const getLogs = async (args, isRetry) => {
   const { page } = args.getState();
+  await page.bringToFront();
   if (!(await page.$('.navGlobal .icon02 a'))) {
     throw new Error('Please try again from login.');
   }
 
   await clickToSelector(page, '.navGlobal .icon02 a', 'table.tblTy91 tbody');
-  await checkError(args);
+
+  if ((await checkError(args)) === 'reloaded' && !isRetry) {
+    return getLogs(args, true);
+  }
 
   const result = await page.evaluate(
     e =>
