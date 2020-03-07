@@ -160,7 +160,7 @@ const getBalance = async args => {
   return amountToNumber(balanceText);
 };
 
-const getLogs = async (args, isRetry) => {
+const getLogs = async (args, isRetry = false) => {
   const { page } = args.getState();
 
   await checkLocking(args);
@@ -174,12 +174,18 @@ const getLogs = async (args, isRetry) => {
     return getLogs(args, true);
   }
 
+  await page.waitFor(2000);
+  const table = await page.$('table.tblTy91 tbody');
+  if (!table) {
+    throw new Error('table is not found');
+  }
+
   const result = await page.evaluate(
     e =>
       Array.from(e.querySelectorAll('tr')).map(v =>
         Array.from(v.children).map(v => v.innerText)
       ),
-    await page.$('table.tblTy91 tbody')
+    table
   );
   result.reverse();
 
