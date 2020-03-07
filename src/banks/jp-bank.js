@@ -2,11 +2,12 @@ import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 import { e2y } from '../utils/era2year';
 import { clickToNav, clickToSelector } from '../utils/page-move';
+import { checkLocking, clearLocking } from '../utils/locker';
 
 const checkError = async args => {
   const { getState, setState } = args;
   const { page } = getState();
-  await page.bringToFront();
+
   await page.waitFor(1000);
   const errorBox = await page.$('.boxErrorBa').catch(e => {
     debug.warn(e);
@@ -78,7 +79,7 @@ const login = async args => {
     });
   }
 
-  await page.bringToFront();
+  await checkLocking(args);
   await page.goto('https://direct.jp-bank.japanpost.jp/tp1web/U010101WAK.do');
   await checkError(args);
 
@@ -138,11 +139,13 @@ const login = async args => {
   };
 
   await checkInput();
+  clearLocking(args);
 };
 
 const getBalance = async args => {
   const { page } = args.getState();
-  await page.bringToFront();
+
+  await checkLocking(args);
   await goToTop(args);
 
   const balanceText = await page.evaluate(
@@ -153,12 +156,14 @@ const getBalance = async args => {
     throw new Error('There was no balance display.');
   }
 
+  clearLocking(args);
   return amountToNumber(balanceText);
 };
 
 const getLogs = async (args, isRetry) => {
   const { page } = args.getState();
-  await page.bringToFront();
+
+  await checkLocking(args);
   if (!(await page.$('.navGlobal .icon02 a'))) {
     throw new Error('Please try again from login.');
   }
@@ -178,6 +183,7 @@ const getLogs = async (args, isRetry) => {
   );
   result.reverse();
 
+  clearLocking(args);
   return result.map(v => {
     const [date, deposit, withdrawal, name, balance] = v;
     const dateArr = date.split('-');

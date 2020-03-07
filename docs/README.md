@@ -8,7 +8,12 @@ import bankJs from '@nzws/bank-js';
 
 (async () => {
   const browser = await puppeteer.launch({
-    slowMo: 50
+    slowMo: 50,
+    args: [
+      '--disable-background-timer-throttling',
+      '--disable-backgrounding-occluded-windows',
+      '--disable-renderer-backgrounding'
+    ]
   });
 
   const bank = new bankJs('jp-bank');

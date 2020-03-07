@@ -4,8 +4,13 @@ const bankJs = require('../build');
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: false,
-    slowMo: 50
+    // headless: false, // GUI上で確認する場合コメントアウトを外す: 複数タブでの bank-js 同時使用がバグりやすくなります
+    slowMo: 50,
+    args: [
+      '--disable-background-timer-throttling',
+      '--disable-backgrounding-occluded-windows',
+      '--disable-renderer-backgrounding'
+    ]
   });
 
   const jpBank = new bankJs('jp-bank');

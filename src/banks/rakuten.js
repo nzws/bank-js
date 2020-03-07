@@ -1,11 +1,12 @@
 import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 import { clickToNav } from '../utils/page-move';
+import { checkLocking, clearLocking } from '../utils/locker';
 
 const checkError = async args => {
   const { getState, setState } = args;
   const { page } = getState();
-  await page.bringToFront();
+
   await page.waitFor(1000);
   const errorBox = await page.$('.errortxt, .txt-error').catch(e => {
     debug.warn(e);
@@ -47,7 +48,7 @@ const login = async args => {
     });
   }
 
-  await page.bringToFront();
+  await checkLocking(args);
   await page.goto(
     'https://fes.rakuten-bank.co.jp/MS/main/RbS?CurrentPageID=START&&COMMAND=LOGIN'
   );
@@ -94,11 +95,13 @@ const login = async args => {
   };
 
   await checkInput();
+  clearLocking(args);
 };
 
 const getBalance = async (args, isRetry = false) => {
   const { page } = args.getState();
-  await page.bringToFront();
+
+  await checkLocking(args);
   await page.goto(
     'https://fes.rakuten-bank.co.jp/MS/main/gns?COMMAND=BALANCE_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK'
   );
@@ -116,12 +119,14 @@ const getBalance = async (args, isRetry = false) => {
     throw new Error('There was no balance display.');
   }
 
+  clearLocking(args);
   return amountToNumber(balanceText);
 };
 
 const getLogs = async (args, isRetry = false) => {
   const { page } = args.getState();
-  await page.bringToFront();
+
+  await checkLocking(args);
   await page.goto(
     'https://fes.rakuten-bank.co.jp/MS/main/gns?COMMAND=CREDIT_DEBIT_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK'
   );
@@ -142,6 +147,7 @@ const getLogs = async (args, isRetry = false) => {
     return tr.map(v => Array.from(v.children).map(v => v.innerText));
   }, table[0]);
 
+  clearLocking(args);
   return result.map(v => {
     const [date, name, depositStr, balance] = v;
     const deposit = amountToNumber(depositStr);
@@ -166,7 +172,8 @@ const depositFromJpBank = async (args, isRetry = false) => {
   if (!amount || !PIN) {
     throw new Error('amount and PIN is required in values.');
   }
-  await page.bringToFront();
+
+  await checkLocking(args);
   await page.goto(
     'https://fes.rakuten-bank.co.jp/MS/main/gns?COMMAND=CREDIT_SERVICE_START&&CurrentPageID=HEADER_FOOTER_LINK'
   );
@@ -200,6 +207,7 @@ const depositFromJpBank = async (args, isRetry = false) => {
   const fee = await page.evaluate(el => el.innerText, result[5]);
   const schedule = await page.evaluate(el => el.innerText, result[6]);
 
+  clearLocking(args);
   return {
     amount: amountToNumber(amountResult),
     fee: amountToNumber(fee),
