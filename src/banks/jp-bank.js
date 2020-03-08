@@ -1,7 +1,7 @@
 import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 import { e2y } from '../utils/era2year';
-import { clickToNav, clickToSelector } from '../utils/page-move';
+import { clickToNav, clickToSelector, input } from '../utils/page-utils';
 import { checkLocking, clearLocking } from '../utils/locker';
 
 const checkError = async args => {
@@ -84,12 +84,9 @@ const login = async args => {
   await checkError(args);
 
   await page.waitFor(500);
-  await page.type('input[name="okyakusamaBangou1"]', user[0]);
-  await page.waitFor(500);
-  await page.type('input[name="okyakusamaBangou2"]', user[1]);
-  await page.waitFor(500);
-  await page.type('input[name="okyakusamaBangou3"]', user[2]);
-  await page.waitFor(500);
+  await input(page, 'input[name="okyakusamaBangou1"]', user[0]);
+  await input(page, 'input[name="okyakusamaBangou2"]', user[1]);
+  await input(page, 'input[name="okyakusamaBangou3"]', user[2]);
 
   await clickToNav(page, 'input[value="次へ"]');
 
@@ -101,8 +98,7 @@ const login = async args => {
     const topPage = await page.$('.btnBa.alignR.submit a');
 
     if (passwordInput) {
-      await page.type('input[name="loginPassword"]', password);
-      await page.waitFor(500);
+      await input(page, 'input[name="loginPassword"]', password);
 
       await clickToNav(page, 'input[value="ログイン"]');
 
@@ -123,8 +119,7 @@ const login = async args => {
         throw new Error('This question does not exist.');
       }
 
-      await page.type('input[name="aikotoba"]', questionSet[1]);
-      await page.waitFor(500);
+      await input(page, 'input[name="aikotoba"]', questionSet[1]);
 
       await clickToNav(page, '.listBtnTy01 .btnBa:not(.back) a[href="#"]');
 

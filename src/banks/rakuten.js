@@ -1,6 +1,6 @@
 import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
-import { clickToNav } from '../utils/page-move';
+import { clickToNav, input } from '../utils/page-utils';
 import { checkLocking, clearLocking } from '../utils/locker';
 
 const checkError = async args => {
@@ -54,9 +54,8 @@ const login = async args => {
   );
 
   await page.waitFor(2000);
-  await page.type('input[name="LOGIN:USER_ID"]', username);
-  await page.type('input[name="LOGIN:LOGIN_PASSWORD"]', password);
-  await page.waitFor(500);
+  await input(page, 'input[name="LOGIN:USER_ID"]', username);
+  await input(page, 'input[name="LOGIN:LOGIN_PASSWORD"]', password);
 
   await clickToNav(page, '.btn-login01 a');
 
@@ -83,9 +82,7 @@ const login = async args => {
         throw new Error('This question does not exist.');
       }
 
-      await page.type('input[name="INPUT_FORM:SECRET_WORD"]', questionSet[1]);
-      await page.waitFor(500);
-
+      await input(page, 'input[name="INPUT_FORM:SECRET_WORD"]', questionSet[1]);
       await clickToNav(page, 'input[type="submit"]');
 
       return checkInput();
@@ -188,15 +185,15 @@ const depositFromJpBank = async (args, isRetry = false) => {
     'form#CREDIT_CARD_FORM td[align="center"] a[href="#"]'
   );
 
-  await page.type('input[name="FORM:AMOUNT"]', amount.toString());
-  await page.waitFor(500);
-
+  await input(page, 'input[name="FORM:AMOUNT"]', amount.toString());
   await clickToNav(page, 'input[type="submit"]');
   await checkError(args);
 
-  await page.type('input[name="SECURITY_BOARD:USER_PASSWORD"]', PIN.toString());
-  await page.waitFor(500);
-
+  await input(
+    page,
+    'input[name="SECURITY_BOARD:USER_PASSWORD"]',
+    PIN.toString()
+  );
   await clickToNav(page, 'input[value="実 行"]');
   await checkError(args);
 
