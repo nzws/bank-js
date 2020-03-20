@@ -2,6 +2,35 @@ import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 import { clickToNav, input } from '../utils/page-utils';
 import { checkLocking, clearLocking, isLocking } from '../utils/locker';
+import { splitName } from '../utils/desc-provider';
+
+const pointRegex = /（(\d+)ポイント(利用|返還)）/i;
+const addData = name => {
+  const data = splitName(name);
+  switch (data[0]) {
+    case 'VISAデビット': {
+      const point = data[2].match(pointRegex);
+
+      return {
+        type: 'debit',
+        transactionNo: data[1].slice(2),
+        transactionType: data[1].slice(0, 1),
+        usedPoint: point
+          ? parseInt(point[1]) * (point[2] === '返還' ? 1 : -1)
+          : 0,
+        merchant: data.slice(point ? 3 : 2).join(' ')
+      };
+    }
+    case 'ゆうちょ入金':
+      return { type: 'deposit-from-jp-bank' };
+    case 'カ－ド入金': {
+      const [bank] = data[1].split('銀行');
+      return { type: 'deposit-from-atm', bank: `${bank}銀行` };
+    }
+    default:
+      return { type: 'unknown' };
+  }
+};
 
 const checkError = async args => {
   const { getState, setState } = args;
@@ -131,6 +160,7 @@ const getLogs = async (args, isRetry = false) => {
   const { page } = args.getState();
 
   await checkLocking(args);
+  await page.waitFor(1000);
   await page.goto(
     'https://fes.rakuten-bank.co.jp/MS/main/gns?COMMAND=CREDIT_DEBIT_INQUIRY_START&&CurrentPageID=HEADER_FOOTER_LINK'
   );
@@ -161,7 +191,8 @@ const getLogs = async (args, isRetry = false) => {
       name: name.trim(),
       type: deposit > 0 ? 'deposit' : 'withdrawal',
       amount: Math.abs(deposit),
-      balance: amountToNumber(balance)
+      balance: amountToNumber(balance),
+      addData: addData(name.trim())
     };
   });
 };

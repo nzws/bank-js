@@ -3,6 +3,25 @@ import amountToNumber from '../utils/amount';
 import { e2y } from '../utils/era2year';
 import { clickToNav, clickToSelector, input } from '../utils/page-utils';
 import { checkLocking, clearLocking, isLocking } from '../utils/locker';
+import { splitName } from '../utils/desc-provider';
+
+const addData = name => {
+  const data = splitName(name);
+  switch (data[0]) {
+    case 'カード': {
+      const bank = data[1] || 'ゆうちょ銀行';
+      return { type: 'deposit-from-atm', bank };
+    }
+    case 'ＲＴ':
+      return { type: 'immediate-transfer', to: data[1].slice(1).slice(0, -1) };
+    case '自払':
+      return { type: 'auto-payment', to: data[1] };
+    case 'ＰＥ':
+      return { type: 'pay-easy', to: data[1] };
+    default:
+      return { type: 'unknown' };
+  }
+};
 
 const checkError = async args => {
   const { getState, setState } = args;
@@ -209,7 +228,8 @@ const getLogs = async (args, isRetry = false) => {
       name: name.trim(),
       type: deposit ? 'deposit' : 'withdrawal',
       amount: amountToNumber(deposit || withdrawal),
-      balance: amountToNumber(balance)
+      balance: amountToNumber(balance),
+      addData: addData(name.trim())
     };
   });
 };
