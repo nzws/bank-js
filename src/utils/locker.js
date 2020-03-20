@@ -7,8 +7,8 @@ export const checkLocking = async (args, retry = 0) => {
   const { getState, setState } = args;
   const { isLocking } = getState();
 
-  if (retry > 30) {
-    // 大体1分（適当）
+  if (retry > 60) {
+    // 大体2分（適当）
     debug.warn('locking timeout');
     setState('locking', true);
     return;
@@ -28,4 +28,5 @@ export const checkLocking = async (args, retry = 0) => {
   }
 };
 
+export const isLocking = ({ getState }) => getState().isLocking;
 export const clearLocking = ({ setState }) => setState('isLocking', false);

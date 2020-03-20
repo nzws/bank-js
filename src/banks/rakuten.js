@@ -1,7 +1,7 @@
 import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 import { clickToNav, input } from '../utils/page-utils';
-import { checkLocking, clearLocking } from '../utils/locker';
+import { checkLocking, clearLocking, isLocking } from '../utils/locker';
 
 const checkError = async args => {
   const { getState, setState } = args;
@@ -20,7 +20,14 @@ const checkError = async args => {
     if (error.indexOf('一定時間操作が行われなかった') !== -1) {
       // セッションタイムアウト
       await page.waitFor(2000);
+      const lock = isLocking(args);
+      if (lock) {
+        clearLocking(args);
+      }
       await login({ getState, setState });
+      if (lock) {
+        await checkLocking(args);
+      }
       return 'reloaded';
     } else {
       throw new Error(error);
