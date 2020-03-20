@@ -2,7 +2,7 @@ import { access, debug } from '../utils/logger';
 import amountToNumber from '../utils/amount';
 import { e2y } from '../utils/era2year';
 import { clickToNav, clickToSelector, input } from '../utils/page-utils';
-import { checkLocking, clearLocking } from '../utils/locker';
+import { checkLocking, clearLocking, isLocking } from '../utils/locker';
 
 const checkError = async args => {
   const { getState, setState } = args;
@@ -23,14 +23,28 @@ const checkError = async args => {
     if (error.indexOf('前回の操作から一定時間が経過した場合') !== -1) {
       // セッションタイムアウト
       await page.waitFor(2000);
+      const lock = isLocking(args);
+      if (lock) {
+        clearLocking(args);
+      }
       await login({ getState, setState });
+      if (lock) {
+        await checkLocking(args);
+      }
       return 'reloaded';
     } else if (
       error.indexOf('ご利用時間外のためお取り扱いいただけません') !== -1
     ) {
       // 23:55 ~ 0:05
       await page.waitFor(1000 * 60 * 10);
+      const lock = isLocking(args);
+      if (lock) {
+        clearLocking(args);
+      }
       await login({ getState, setState });
+      if (lock) {
+        await checkLocking(args);
+      }
       return 'reloaded';
     } else {
       throw new Error(error);
