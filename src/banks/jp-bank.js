@@ -13,11 +13,18 @@ const addData = name => {
       return { type: 'deposit-from-atm', bank };
     }
     case 'ＲＴ':
-      return { type: 'immediate-transfer', to: data[1].slice(1).slice(0, -1) };
+      return {
+        type: 'immediate-transfer',
+        to: data
+          .slice(1)
+          .join(' ')
+          .slice(1)
+          .slice(0, -1)
+      };
     case '自払':
-      return { type: 'auto-payment', to: data[1] };
+      return { type: 'auto-payment', to: data.slice(1).join(' ') };
     case 'ＰＥ':
-      return { type: 'pay-easy', to: data[1] };
+      return { type: 'pay-easy', to: data.slice(1).join(' ') };
     default:
       return { type: 'unknown' };
   }

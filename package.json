@@ -1,6 +1,6 @@
 {
   "name": "@nzws/bank-js",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "nzws <i@nzws.me>",
   "main": "./build/index.js",
   "license": "MIT",

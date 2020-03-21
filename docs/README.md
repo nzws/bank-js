@@ -1,4 +1,4 @@
-# bank-js API [WIP]
+# bank-js API
 
 ## tl;dr
 
@@ -87,14 +87,26 @@ await bank.login('username', 'password', {
   - `type` <withdrawal|deposit>: deposit: 入金, withdrawal: 引出
   - `amount` <[number]>: 金額
   - `balance` <[number]>: その時点での残高
+  - `addData` <[Object]>: 項目名から解析した追加情報 (ベータ)
+    - `type`: 取引のカテゴリ (不明な場合は `unknown`)
+    - カテゴリによって他のデータが入っている場合があります。
 
 ---
 
 - ゆうちょ: 直近 10 日分を取得できます。
 - 楽天: 最新 50 件を取得できます。
 - ゆうちょ, 楽天: 時刻はすべて 00:00 固定です。(日付しか取得できないため)
+- ゆうちょの `addData` 属性
+  - 銀行 ATM からの入金 - type: `deposit-from-atm`, bank <[string]>: 銀行名
+  - 自動払い込み - type: `auto-payment`, to <[string]>: 振込先
+  - 即時振替 - type: `immediate-transfer`, to <[string]>: 振込先
+  - Pay-easy - type: `pay-easy`, to <[string]>: 振込先
+- 楽天の `addData` 属性
+  - Visa デビット利用 - type: `debit`, transactionNo <[string]>: 承認番号, transactionType <A|B>: 取引タイプ, usedPoint <[number]>: 使用したポイント(返金の場合はマイナス), merchant <[string]>: 加盟店名
+  - ゆうちょからの入金 - type: `deposit-from-jp-bank`
+  - ATM からの入金 - type: `deposit-from-atm`, bank <[string]>: 銀行名
 
-返ってくる値は次のような配列になります：
+返ってくる値は例えば次のような配列になります：
 
 ```
 [
@@ -104,6 +116,13 @@ await bank.login('username', 'password', {
     type: 'withdrawal',
     amount: 200,
     balance: 1000
+    addData: {
+      type: 'debit',
+      transactionNo: '000000',
+      transactionType: 'A',
+      usedPoint: 0,
+      merchant: '加盟店名'
+    }
   },
   ...
 ]
