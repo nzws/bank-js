@@ -97,14 +97,14 @@ await bank.login('username', 'password', {
 - 楽天: 最新 50 件を取得できます。
 - ゆうちょ, 楽天: 時刻はすべて 00:00 固定です。(日付しか取得できないため)
 - ゆうちょの `addData` 属性
-  - 銀行 ATM からの入金 - type: `deposit-from-atm`, bank <[string]>: 銀行名
+  - 銀行 ATM からの入出金 - type: `atm`, bank <[string]>: 銀行名
   - 自動払い込み - type: `auto-payment`, to <[string]>: 振込先
   - 即時振替 - type: `immediate-transfer`, to <[string]>: 振込先
   - Pay-easy - type: `pay-easy`, to <[string]>: 振込先
 - 楽天の `addData` 属性
   - Visa デビット利用 - type: `debit`, transactionNo <[string]>: 承認番号, transactionType <A|B>: 取引タイプ, usedPoint <[number]>: 使用したポイント(返金の場合はマイナス), merchant <[string]>: 加盟店名
-  - ゆうちょからの入金 - type: `deposit-from-jp-bank`
-  - ATM からの入金 - type: `deposit-from-atm`, bank <[string]>: 銀行名
+  - ゆうちょからの入金 - type: `jp-bank`
+  - ATM からの入出金 - type: `atm`, bank <[string]>: 銀行名
 
 返ってくる値は例えば次のような配列になります：
 

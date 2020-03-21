@@ -10,7 +10,7 @@ const addData = name => {
   switch (data[0]) {
     case 'カード': {
       const bank = data[1] || 'ゆうちょ銀行';
-      return { type: 'deposit-from-atm', bank };
+      return { type: 'atm', bank };
     }
     case 'ＲＴ':
       return {

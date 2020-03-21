@@ -25,7 +25,7 @@ const addData = name => {
       return { type: 'deposit-from-jp-bank' };
     case 'カ－ド入金': {
       const [bank] = data[1].split('銀行');
-      return { type: 'deposit-from-atm', bank: `${bank}銀行` };
+      return { type: 'atm', bank: `${bank}銀行` };
     }
     default:
       return { type: 'unknown' };
