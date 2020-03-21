@@ -16,7 +16,7 @@ const addData = name => {
         transactionNo: data[1].slice(2),
         transactionType: data[1].slice(0, 1),
         usedPoint: point
-          ? parseInt(point[1]) * (point[2] === '返還' ? 1 : -1)
+          ? parseInt(point[1]) * (point[2] === '返還' ? -1 : 1)
           : 0,
         merchant: data.slice(point ? 3 : 2).join(' ')
       };

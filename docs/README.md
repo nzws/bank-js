@@ -102,8 +102,8 @@ await bank.login('username', 'password', {
   - 即時振替 - type: `immediate-transfer`, to <[string]>: 振込先
   - Pay-easy - type: `pay-easy`, to <[string]>: 振込先
 - 楽天の `addData` 属性
-  - Visa デビット利用 - type: `debit`, transactionNo <[string]>: 承認番号, transactionType <A|B>: 取引タイプ, usedPoint <[number]>: 使用したポイント(返金の場合はマイナス), merchant <[string]>: 加盟店名
-  - ゆうちょからの入金 - type: `jp-bank`
+  - Visa デビット利用 - type: `debit`, `transactionNo` <[string]>: 承認番号, `transactionType` <A|B>: 取引タイプ, `usedPoint` <[number]>: 使用したポイント(返金の場合はマイナス), `merchant` <[string]>: 加盟店名
+  - ゆうちょからの入金 - type: `deposit-from-jp-bank`
   - ATM からの入出金 - type: `atm`, bank <[string]>: 銀行名
 
 返ってくる値は例えば次のような配列になります：
