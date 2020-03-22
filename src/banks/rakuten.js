@@ -13,8 +13,8 @@ const addData = name => {
 
       return {
         type: 'debit',
-        transactionNo: data[1].slice(2),
-        transactionType: data[1].slice(0, 1),
+        transactionNo: data[1].slice(data[1][1] === '0' ? 2 : 1),
+        transactionType: data[1][0],
         usedPoint: point
           ? parseInt(point[1]) * (point[2] === '返還' ? -1 : 1)
           : 0,
