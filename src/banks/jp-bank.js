@@ -15,11 +15,7 @@ const addData = name => {
     case 'ＲＴ':
       return {
         type: 'immediate-transfer',
-        to: data
-          .slice(1)
-          .join(' ')
-          .slice(1)
-          .slice(0, -1)
+        to: data.slice(1).join(' ').slice(1).slice(0, -1)
       };
     case '自払':
       return { type: 'auto-payment', to: data.slice(1).join(' ') };

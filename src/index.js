@@ -13,9 +13,7 @@ export default class bankJs {
       throw new Error('This bank ID does not exist.');
     }
 
-    const random = Math.random()
-      .toString(36)
-      .slice(-8);
+    const random = Math.random().toString(36).slice(-8);
     this.id = random;
     this.setState('bankId', bankId, random);
   }

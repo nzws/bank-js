@@ -13,10 +13,10 @@
     "access": "public"
   },
   "scripts": {
-    "lint:prettier": "prettier --check --ignore-path .gitignore \"**/*.{js,md,json,yml}\"",
+    "lint:prettier": "prettier --check --ignore-path .gitignore .",
     "lint:eslint": "eslint --ignore-path .gitignore \"**/*.js\"",
     "lint": "npm-run-all lint:* -s",
-    "format-all": "prettier --write --ignore-path .gitignore \"**/*.{js,md,json,yml}\"",
+    "format-all": "prettier --write --ignore-path .gitignore .",
     "format:prettier": "pretty-quick",
     "format:js": "eslint --fix --ignore-path .gitignore \"**/*.js\"",
     "format": "npm-run-all format:* -s",
@@ -32,19 +32,19 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
+    "@nzws/prettier-config": "^1.0.0",
     "@yuzulabo/eslint-config": "^1.0.1",
-    "@yuzulabo/prettier-config": "~1",
     "babel-eslint": "^10.1.0",
     "babel-plugin-add-module-exports": "^1.0.2",
     "cross-env": "^7.0.2",
     "eslint": "~6",
     "npm-run-all": "~4",
-    "prettier": "~1",
+    "prettier": "~2.0.1",
     "pretty-quick": "^2.0.1"
   },
   "files": [
     "README.md",
     "build/*"
   ],
-  "prettier": "@yuzulabo/prettier-config"
+  "prettier": "@nzws/prettier-config"
 }
