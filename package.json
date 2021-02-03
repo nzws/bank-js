@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "log4js": "^6.1.2",
-    "puppeteer": "^2.1.1"
+    "puppeteer": "^6.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
