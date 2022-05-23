@@ -25,7 +25,7 @@
     "start": "yarn build:js && node sec-example"
   },
   "dependencies": {
-    "log4js": "^6.1.2",
+    "log4js": "^6.5.0",
     "puppeteer": "^2.1.1"
   },
   "devDependencies": {
